@@ -6,7 +6,8 @@ class VideoTest < ActiveSupport::TestCase
       "title": "Hidden Figures",
       "overview": "Some text",
       "release_date": "1960-06-16",
-      "inventory": 8
+      "inventory": 8,
+      "external_id": 9
     }
   }
 
@@ -76,6 +77,18 @@ class VideoTest < ActiveSupport::TestCase
       video.reload
       after_ai = video.available_inventory
       expect(after_ai).must_equal before_ai + 1
+    end
+  end
+
+  describe "model validations" do
+    it "cannot add a movie with a matching external id (aka twice from MovieDB)" do
+      video_data["external_id"] = 7 # match fixture external_id
+
+      invalid_video = Video.create(video_data)
+
+      expect(invalid_video.valid?).must_equal false
+      expect(invalid_video.errors[:external_id]).must_include "has already been taken"
+
     end
   end
 end

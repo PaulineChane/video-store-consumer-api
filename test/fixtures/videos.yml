@@ -5,9 +5,11 @@ one:
   overview: MyText
   release_date: 2017-01-11
   inventory: 4
+  external_id: 7
 
 two:
   title: MuchFilm
   overview: MyText
   release_date: 2017-01-11
   inventory: 7
+  external_id: 8
