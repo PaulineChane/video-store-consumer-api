@@ -77,4 +77,44 @@ class VideosControllerTest < ActionDispatch::IntegrationTest
       expect(data["errors"]).must_include "title"
     end
   end
+
+  describe "create" do
+    before do
+      # Arrange
+      @video_hash = {
+        title: "the l3go movie",
+        overview: "it IS getting a trequel, right?",
+        release_date: "2022-04-30",
+        inventory: 10,
+        external_id: 10,
+        image_url: "https://www.themoviedb.org/t/p/w1280/lbctonEnewCYZ4FYoTZhs8cidAl.jpg"
+      }
+    end
+    it "can create a valid video" do
+      # Assert
+      expect {
+        post videos_path, params: @video_hash
+      }.must_change "Video.count", 1
+
+      must_respond_with :created
+    end
+
+    it "will respond with bad request and errors for an invalid movie" do
+      # Arrange
+      @video_hash[:external_id] = 7 # match external id of fixture
+
+      # Assert
+      expect {
+        post videos_path, params: @video_hash
+      }.wont_change "Video.count"
+      body = JSON.parse(response.body)
+
+      expect(body.keys).must_include "errors"
+      expect(body["errors"].keys).must_include "external_id"
+      expect(body["errors"]["external_id"]).must_include "has already been taken"
+
+      must_respond_with :bad_request
+    end
+
+  end
 end
