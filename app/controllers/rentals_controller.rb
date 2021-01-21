@@ -6,6 +6,11 @@ class RentalsController < ApplicationController
   def check_out
     rental = Rental.new(video: @video, customer: @customer, due_date: params[:due_date])
 
+    if rental.video.available_inventory < 1
+      render status: :bad_request, json: { errors: { video: ["No copies available"] } }
+      return
+    end
+
     if rental.save
       render status: :ok, json: {}
     else

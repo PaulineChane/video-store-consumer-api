@@ -69,6 +69,22 @@ class RentalsControllerTest < ActionDispatch::IntegrationTest
       expect(data).must_include "errors"
       expect(data["errors"]).must_include "due_date"
     end
+
+    it "requires sufficient inventory" do
+      videos(:one)['inventory'] = 1
+      videos(:one).save # ensure new inventory number is saved to invalidate this test
+      customer = customers(:two)
+      post check_out_path(title: videos(:one).title), params: {
+        customer_id: customer.id,
+        due_date: Date.today + 1
+      }
+
+      must_respond_with :bad_request
+      data = JSON.parse @response.body
+      expect(data).must_include "errors"
+      expect(data["errors"]).must_include "video"
+      expect(data["errors"]["video"]).must_include "No copies available"
+    end
   end
 
   describe "check-in" do
