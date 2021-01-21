@@ -35,6 +35,15 @@ class RentalTest < ActiveSupport::TestCase
       expect(@rental).must_respond_to :video
     end
 
+    it "has a video with sufficient inventory" do
+      videos(:one)['inventory'] = 0
+      rental_data['video'] = videos(:one)
+      bad_rental = Rental.new(rental_data)
+      expect(bad_rental.valid?).must_equal false
+      expect(bad_rental.errors.messages).must_include :video
+      expect(bad_rental.errors.messages[:video]).must_include "is invalid"
+    end
+
     it "Cannot be created without a video" do
       data = rental_data.clone
       data.delete :video
