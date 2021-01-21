@@ -90,5 +90,25 @@ class VideoTest < ActiveSupport::TestCase
       expect(invalid_video.errors[:external_id]).must_include "has already been taken"
 
     end
+
+    it "must have a total_inventory greater than 0" do
+      videos.each do |video|
+        video.inventory = 0
+        expect(video.valid?).must_equal false
+        expect(video.errors[:inventory]).must_include "must be greater than 0"
+      end
+    end
+
+    it "must have numerical, integer values for total/available inventory" do
+      error_message_hash = {"NaN" => "is not a number", 1.5 => "must be an integer"}
+      # ^ allows us to test for invalid number and integer input in one neat test :)
+        error_message_hash.each do |error, message|
+          videos(:one)[:inventory] = error
+
+          expect(videos(:one).valid?).must_equal false
+
+          expect(videos(:one).errors[:inventory]).must_include message
+        end
+    end
   end
 end
